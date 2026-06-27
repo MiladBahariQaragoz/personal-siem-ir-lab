@@ -20,6 +20,38 @@ import pathlib
 import sys
 
 
+def _safe_output_path(raw: str, allowed_parent: pathlib.Path) -> pathlib.Path:
+    """Resolve *raw* relative to *allowed_parent* and refuse traversal escapes.
+
+    Prevents path-traversal attacks via ``--output`` / ``--output-json`` when
+    these arguments are attacker-influenced (e.g. environment-variable
+    interpolation in CI pipelines).  Paths that resolve outside
+    *allowed_parent* raise ``ValueError`` (SECURITY#5).
+
+    In-repo writes (e.g. ``examples/report.md``) still work correctly.
+
+    Args:
+        raw: The raw output path string supplied by the caller.
+        allowed_parent: The root directory outside which writes are refused.
+
+    Returns:
+        The resolved absolute ``pathlib.Path``.
+
+    Raises:
+        ValueError: If the resolved path escapes *allowed_parent*.
+    """
+    resolved = (allowed_parent / raw).resolve()
+    allowed_root = allowed_parent.resolve()
+    try:
+        resolved.relative_to(allowed_root)
+    except ValueError:
+        raise ValueError(
+            f"Output path {raw!r} resolves to {resolved} which escapes the "
+            f"allowed directory {allowed_root}. Write refused."
+        )
+    return resolved
+
+
 def _cmd_coverage(args: argparse.Namespace) -> int:
     from siem_ir.coverage import coverage_matrix
 
@@ -32,7 +64,11 @@ def _cmd_coverage(args: argparse.Namespace) -> int:
     print(result.markdown)
 
     if args.output_json:
-        out = pathlib.Path(args.output_json)
+        try:
+            out = _safe_output_path(args.output_json, pathlib.Path.cwd())
+        except ValueError as exc:
+            print(f"ERROR: {exc}", file=sys.stderr)
+            return 1
         out.parent.mkdir(parents=True, exist_ok=True)
         out.write_text(result.json_output, encoding="utf-8")
         print(f"\nJSON written to: {out}", file=sys.stderr)
@@ -50,7 +86,11 @@ def _cmd_report(args: argparse.Namespace) -> int:
         return 1
 
     if args.output:
-        out = pathlib.Path(args.output)
+        try:
+            out = _safe_output_path(args.output, pathlib.Path.cwd())
+        except ValueError as exc:
+            print(f"ERROR: {exc}", file=sys.stderr)
+            return 1
         out.parent.mkdir(parents=True, exist_ok=True)
         out.write_text(md, encoding="utf-8")
         print(f"Report written to: {out}", file=sys.stderr)
