@@ -10,6 +10,7 @@ The CLI entry point is `siem-ir report --alerts <path> --scenario <name>`.
 from __future__ import annotations
 
 import pathlib
+import re
 from datetime import datetime, timezone
 
 from siem_ir.attack_map import TECHNIQUES
@@ -42,10 +43,16 @@ def draft_report(alerts_path: pathlib.Path, scenario: str) -> str:
     Args:
         alerts_path: Path to the exported alerts JSON file.
         scenario: Short name for this incident scenario (used in report title).
+            Sanitized to ``[A-Za-z0-9_-]`` before embedding to prevent
+            Markdown/HTML injection (SECURITY#6).
 
     Returns:
         Markdown string — the drafted IR report skeleton.
     """
+    # Sanitize scenario to alphanumeric + hyphen/underscore (SECURITY#6).
+    # Any character outside this set is replaced with a hyphen.
+    scenario = re.sub(r"[^A-Za-z0-9_\-]", "-", scenario)
+
     alerts = _load_alerts(alerts_path)
     detected_ttps = _extract_detected_ttps(alerts)
 

@@ -106,3 +106,27 @@ def test_affected_host_in_report():
 def test_missing_fixture_raises_file_not_found():
     with pytest.raises(FileNotFoundError):
         draft_report(pathlib.Path("fixtures/nonexistent.json"), "test-scenario")
+
+
+# ---------------------------------------------------------------------------
+# Security: SECURITY#6 — scenario Markdown injection must be sanitized
+# ---------------------------------------------------------------------------
+
+
+def test_scenario_injection_chars_are_stripped():
+    """Characters outside [A-Za-z0-9_-] in --scenario must be sanitized to
+    hyphens before embedding in the report (SECURITY#6 — Markdown injection)."""
+    injection_scenario = "] (javascript:alert(1)) [<script>evil</script>"
+    report = draft_report(FIXTURE, injection_scenario)
+
+    # The raw injection payload must not appear verbatim in the report.
+    assert "] (javascript:alert(1)) [" not in report, (
+        "Markdown injection characters must be sanitized in the report"
+    )
+    assert "<script>" not in report, (
+        "<script> tag must be removed from scenario in the report"
+    )
+    # The sanitized version (all non-alphanumeric chars → '-') must appear.
+    # Verify that "javascript" and "alert" survive but injection chars are gone.
+    assert "javascript" in report, "Alphanumeric content of scenario must be preserved"
+    assert "script" in report, "Alphanumeric content of scenario must be preserved"
