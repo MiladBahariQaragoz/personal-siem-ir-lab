@@ -97,9 +97,10 @@ def draft_report(alerts_path: pathlib.Path, scenario: str) -> str:
         f"**ATT&CK techniques observed:** {len(detected_ttps)}",
         f"**Affected hosts:** {', '.join(sorted(hosts))}",
         "",
-        "This incident represents a coordinated attack chain: SSH brute-force leading to "
-        "successful authentication, followed by privilege escalation and persistence via "
-        "local account creation.",
+        "> **[TODO — analyst to complete]** Describe the incident scenario and attack "
+        "narrative here. Detected ATT&CK techniques: "
+        + (", ".join(sorted(detected_ttps)) if detected_ttps else "_none mapped_")
+        + ".",
         "",
         "---",
         "",
