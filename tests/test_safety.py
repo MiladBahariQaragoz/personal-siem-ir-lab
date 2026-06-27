@@ -229,3 +229,35 @@ def test_unrelated_ancestor_lab_toml_not_loaded(tmp_path, monkeypatch):
     assert "10.255.255.0/24" not in result, (
         "Unrelated ancestor lab.toml must not be loaded (SECURITY#3)"
     )
+
+
+# ---------------------------------------------------------------------------
+# Security: SECURITY#8 — OSError on open must fail closed (not crash)
+# ---------------------------------------------------------------------------
+
+
+def test_oserror_on_open_fails_closed(tmp_path, monkeypatch):
+    """An OSError while opening lab.toml must return [] (fail-closed) and emit
+    a warning — not propagate the exception (SECURITY#8)."""
+    import pathlib as _pathlib
+    import warnings
+    from unittest.mock import patch
+
+    import siem_ir.safety as safety_module
+
+    lab_toml = tmp_path / "lab.toml"
+    lab_toml.write_text('[lab.subnets]\nprimary = "10.0.0.0/24"\n', encoding="utf-8")
+    monkeypatch.setenv("SIEM_IR_LAB_CONFIG", str(lab_toml))
+
+    # Simulate an OSError on pathlib.Path.open() — e.g. permission denied.
+    with patch.object(_pathlib.Path, "open", side_effect=OSError("Permission denied")):
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter("always")
+            result = safety_module._load_subnets()
+
+    assert result == [], (
+        "OSError on lab.toml open must return empty list (fail-closed, SECURITY#8)"
+    )
+    assert any("could not be read" in str(w.message).lower() for w in caught), (
+        "Expected a warning when lab.toml cannot be read (SECURITY#8)"
+    )
