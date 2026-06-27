@@ -13,7 +13,7 @@
 **ATT&CK techniques observed:** 3
 **Affected hosts:** victim
 
-This incident represents a coordinated attack chain: SSH brute-force leading to successful authentication, followed by privilege escalation and persistence via local account creation.
+> **[TODO — analyst to complete]** Describe the incident scenario and attack narrative here. Detected ATT&CK techniques: T1110.001, T1136.001, T1548.003.
 
 ---
 

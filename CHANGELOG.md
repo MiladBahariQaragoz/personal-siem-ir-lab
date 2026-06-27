@@ -5,6 +5,32 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Security (hardening — 2026-06-27)
+- **SECURITY#1 (High):** Replaced `xml.etree.ElementTree` with `defusedxml.ElementTree` in
+  `siem_ir/validate_rules.py` to block entity-expansion (billion-laughs) DoS.
+  Added `defusedxml>=0.7` as a runtime dependency.
+- **SECURITY#2 (Med):** Froze `_ALLOWED_SUBNETS` to a `tuple` in `siem_ir/safety.py`
+  to make accidental in-place mutation visible as a `TypeError`. Added `reload()` so
+  callers can refresh the cache without restarting the process.
+- **SECURITY#3 (Med):** `_load_subnets()` now prefers an explicit `SIEM_IR_LAB_CONFIG`
+  environment variable and only falls back to the package repo root (one level up), not
+  three ancestor directories. The resolved config path is always logged via `warnings.warn`
+  so operators can verify the correct file was loaded.
+- **SECURITY#4 (Med):** Added `MAX_FIXTURE_BYTES` (100 MB) and `MAX_ALERTS` (50 000)
+  guards in `siem_ir/coverage._load_alerts()` to prevent memory exhaustion from
+  over-sized alert fixtures.
+- **SECURITY#5 (Med):** Added `_safe_output_path()` in `siem_ir/cli.py` to validate that
+  `--output` / `--output-json` paths do not escape the current working directory.
+  Traversal attempts (e.g. `../../evil`) are refused with a `ValueError`.
+- **SECURITY#6 (Low):** Sanitized the `--scenario` argument in `siem_ir/report.py` to
+  `[A-Za-z0-9_-]` before embedding in the report to prevent Markdown/HTML injection.
+- **SECURITY#7 (Low):** Added `_escape_md()` in `siem_ir/report.py`; alert-fixture field
+  values (`rule.description`, `rule.id`, `agent.name`) are now escaped before embedding
+  in the Markdown report to neutralize second-order injection payloads.
+- **SECURITY#8 (Low):** `_load_subnets()` now also catches `OSError` (in addition to
+  `TOMLDecodeError`), emits a warning, and returns `[]` (fail-closed) on I/O failures.
+- Added 17 regression tests covering all 8 findings.
+
 ### Added
 - Repo scaffold: pyproject.toml, lab.toml, .gitignore, LICENSE, DISCLAIMER.md, CLAUDE.md, plan.md (M0)
 - `README.md`: portfolio-grade README with CV bullet, skills, layout, CLI usage, milestones

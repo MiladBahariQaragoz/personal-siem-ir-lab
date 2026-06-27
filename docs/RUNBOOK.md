@@ -2,6 +2,26 @@
 
 > **Status:** Stub — populated during M1 (live lab provisioning).
 
+## Configuration — scope guard (`SIEM_IR_LAB_CONFIG`)
+
+The `siem_ir` scope guard reads `lab.toml` to load authorized subnets.
+Discovery order:
+
+1. **Explicit env var (recommended for CI/CD):**
+   ```bash
+   export SIEM_IR_LAB_CONFIG=/path/to/lab.toml
+   ```
+2. **Default:** `<repo-root>/lab.toml` (one level above `siem_ir/`).
+
+If neither is found, `_ALLOWED_SUBNETS` is empty and all `check()` calls raise `ScopeError`
+(fail-closed). The resolved path is always logged to stderr via `warnings.warn`.
+
+To refresh subnets without restarting (e.g., after editing `lab.toml`):
+```python
+import siem_ir.safety as safety
+safety.reload()
+```
+
 ## Pre-flight checklist
 - [ ] Oracle Cloud account with Always-Free Ampere quota available
 - [ ] SSH key pair generated and uploaded to OCI console

@@ -91,6 +91,13 @@ All commands read committed fixtures — no live SIEM required.
 All attack scripts call `siem_ir.safety.check(target)` before execution. Any target outside
 `lab.subnets` in `lab.toml` is refused. Malformed input also fails closed. See `DISCLAIMER.md`.
 
+The scope guard locates `lab.toml` in this order:
+1. `SIEM_IR_LAB_CONFIG` environment variable (recommended for CI/CD).
+2. Repo root (one directory above `siem_ir/`).
+
+Set `SIEM_IR_LAB_CONFIG=/absolute/path/to/lab.toml` in pipelines to ensure the correct
+config is always loaded. The resolved path is always logged so operators can verify it.
+
 ## License
 
 MIT — see `LICENSE`. Authorized lab use only — see `DISCLAIMER.md`.
