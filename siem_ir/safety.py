@@ -24,10 +24,13 @@ class ScopeError(Exception):
 
 # ---------------------------------------------------------------------------
 # Module-level subnet cache — populated once at import time from lab.toml.
-# Tests may monkeypatch _ALLOWED_SUBNETS directly to avoid disk I/O.
+# Stored as a tuple to make accidental mutation immediately visible (TypeError).
+# NOTE: this is NOT a security boundary on its own — Python callers can always
+# rebind module attributes. The real guard is the fail-closed check() function.
+# Tests should use reload() or monkeypatch the tuple; see reload() below.
 # ---------------------------------------------------------------------------
 
-_ALLOWED_SUBNETS: list[str] = []
+_ALLOWED_SUBNETS: tuple[str, ...] = ()
 
 
 def _load_subnets() -> list[str]:
@@ -57,7 +60,18 @@ def _load_subnets() -> list[str]:
 
 
 # Populate at import time (tests override via monkeypatch).
-_ALLOWED_SUBNETS = _load_subnets()
+_ALLOWED_SUBNETS: tuple[str, ...] = tuple(_load_subnets())
+
+
+def reload() -> None:
+    """Re-read lab.toml and refresh the in-process subnet cache.
+
+    Call this if lab.toml is modified while the process is running.
+    The cache is module-global, so this affects all subsequent check() calls
+    in the current process.
+    """
+    global _ALLOWED_SUBNETS
+    _ALLOWED_SUBNETS = tuple(_load_subnets())
 
 
 def check(target: Any) -> None:  # noqa: ANN401

@@ -139,3 +139,51 @@ def test_no_subnets_refuses_all(monkeypatch):
     monkeypatch.setattr(safety_module, "_ALLOWED_SUBNETS", [])
     with pytest.raises(ScopeError, match="[Nn]o authorized subnets"):
         check("10.0.0.1")
+
+
+# ---------------------------------------------------------------------------
+# Security: SECURITY#2 — _ALLOWED_SUBNETS must be a tuple (immutable cache)
+# ---------------------------------------------------------------------------
+
+
+def test_allowed_subnets_is_tuple(monkeypatch):
+    """_ALLOWED_SUBNETS must be stored as a tuple by _load_subnets (SECURITY#2).
+    The autouse fixture overrides with a list for check() tests — that's fine.
+    Here we verify that reload() always writes a tuple, not a list."""
+    import tempfile
+
+    import siem_ir.safety as safety_module
+
+    # reload() with no lab.toml reachable should set _ALLOWED_SUBNETS to an empty tuple
+    # Point __file__ somewhere with no lab.toml.
+    td = tempfile.mkdtemp()
+    monkeypatch.setattr(safety_module, "__file__", str(td + "/safety.py"))
+    safety_module.reload()
+
+    assert isinstance(safety_module._ALLOWED_SUBNETS, tuple), (
+        "reload() must store subnets as a tuple to prevent in-place mutation"
+    )
+
+
+def test_reload_refreshes_subnet_cache(tmp_path, monkeypatch):
+    """reload() must re-read lab.toml and update _ALLOWED_SUBNETS (SECURITY#2)."""
+    import siem_ir.safety as safety_module
+
+    lab_toml = tmp_path / "lab.toml"
+    lab_toml.write_text('[lab.subnets]\nprimary = "172.16.0.0/24"\n', encoding="utf-8")
+
+    # Point module __file__ at tmp_path so _load_subnets finds our lab.toml.
+    original_file = safety_module.__file__
+    monkeypatch.setattr(safety_module, "__file__", str(tmp_path / "safety.py"))
+
+    safety_module.reload()
+    assert "172.16.0.0/24" in safety_module._ALLOWED_SUBNETS, (
+        "reload() must update _ALLOWED_SUBNETS from the new lab.toml"
+    )
+    assert isinstance(safety_module._ALLOWED_SUBNETS, tuple), (
+        "reload() must store subnets as a tuple"
+    )
+
+    # Restore
+    monkeypatch.setattr(safety_module, "__file__", original_file)
+    safety_module.reload()
