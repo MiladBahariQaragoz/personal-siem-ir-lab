@@ -22,3 +22,4 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - `fixtures/rules/`: sample pass/fail rule XML files for linter tests (rule_valid, rule_bad_id, rule_no_mitre, rule_no_group, rule_malformed)
 - `tests/test_validate_rules.py`: 9 tests covering each failure mode + directory lint
 - `siem_ir/cli.py`: argparse dispatch for `coverage`, `report`, `validate-rules` commands; `siem-ir` entry point
+- `examples/`: pre-generated coverage matrix (MD + JSON) and IR report skeleton from ssh-bruteforce-chain fixture
