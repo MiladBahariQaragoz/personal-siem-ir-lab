@@ -3,7 +3,7 @@ import pathlib
 
 import pytest
 
-from siem_ir.validate_rules import RuleError, validate_rule_file, validate_rules_dir
+from siem_ir.validate_rules import validate_rule_file, validate_rules_dir
 
 FIXTURES = pathlib.Path("fixtures/rules")
 
@@ -94,9 +94,27 @@ def test_missing_dir_raises():
 
 
 # ---------------------------------------------------------------------------
-# Ensure RuleError is importable (used for individual rule errors)
+# Finding #5: non-integer rule id must produce exactly one error (not two)
 # ---------------------------------------------------------------------------
 
 
-def test_rule_error_is_exception():
-    assert issubclass(RuleError, Exception)
+def test_non_integer_rule_id_produces_exactly_one_error(tmp_path):
+    """Rule id='abc' must yield only the 'not an integer' error, not a second
+    'in built-in range' error caused by the sentinel value -1."""
+    xml = tmp_path / "rule_abc_id.xml"
+    xml.write_text(
+        """<group name="test,">
+  <rule id="abc" level="5">
+    <description>Test</description>
+    <mitre><id>T1110.001</id></mitre>
+    <group>authentication_failed,</group>
+  </rule>
+</group>""",
+        encoding="utf-8",
+    )
+    errors = validate_rule_file(xml)
+    # Must have exactly one error about the id not being an integer
+    id_errors = [e for e in errors if "not an integer" in e.lower()]
+    range_errors = [e for e in errors if "built-in range" in e.lower()]
+    assert len(id_errors) == 1, f"Expected 1 'not an integer' error, got: {errors}"
+    assert len(range_errors) == 0, f"Expected 0 range errors, got: {errors}"

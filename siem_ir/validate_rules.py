@@ -15,10 +15,6 @@ import pathlib
 import xml.etree.ElementTree as ET
 
 
-class RuleError(Exception):
-    """Raised for individual rule validation failures."""
-
-
 def validate_rule_file(path: pathlib.Path) -> list[str]:
     """Lint a single Wazuh rule XML file.
 
@@ -56,12 +52,14 @@ def validate_rule_file(path: pathlib.Path) -> list[str]:
                 f"Rule id {rule_id_str!r} is not an integer (must be >= 100000)."
             )
             rule_id = -1
-
-        if rule_id < 100000:
-            errors.append(
-                f"Rule id {rule_id} is in the built-in range (< 100000). "
-                "Custom rules must use id >= 100000."
-            )
+            # Skip range check — -1 is a sentinel, not the actual id.
+            # Remaining attribute checks still apply.
+        else:
+            if rule_id < 100000:
+                errors.append(
+                    f"Rule id {rule_id} is in the built-in range (< 100000). "
+                    "Custom rules must use id >= 100000."
+                )
 
         # 3. <mitre><id> present
         mitre_elem = rule_elem.find("mitre")
