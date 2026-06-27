@@ -1,0 +1,5 @@
+<!-- INVALID: not well-formed XML -->
+<group name="siem_ir,">
+  <rule id="100004" level="10">
+    <description>Malformed rule -- unclosed tag
+  </rule>

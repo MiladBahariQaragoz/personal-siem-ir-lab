@@ -1,0 +1,8 @@
+<!-- INVALID: missing mitre/ATT&CK tag -->
+<group name="siem_ir,">
+  <rule id="100002" level="10">
+    <match>sudo</match>
+    <description>Sudo privilege escalation (missing mitre tag -- INVALID)</description>
+    <group>siem_ir,</group>
+  </rule>
+</group>

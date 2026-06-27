@@ -1,0 +1,11 @@
+<!-- INVALID: rule id < 100000 (built-in range, not custom) -->
+<group name="siem_ir,">
+  <rule id="5710" level="5">
+    <match>^Failed</match>
+    <description>SSH auth failure (built-in id -- INVALID for custom rules)</description>
+    <mitre>
+      <id>T1110.001</id>
+    </mitre>
+    <group>siem_ir,</group>
+  </rule>
+</group>

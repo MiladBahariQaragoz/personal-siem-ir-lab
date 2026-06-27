@@ -1,0 +1,10 @@
+<!-- INVALID: missing group element -->
+<group name="siem_ir,">
+  <rule id="100003" level="10">
+    <match>useradd</match>
+    <description>Local account creation (missing group element -- INVALID)</description>
+    <mitre>
+      <id>T1136.001</id>
+    </mitre>
+  </rule>
+</group>
