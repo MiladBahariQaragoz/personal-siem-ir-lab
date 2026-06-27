@@ -14,6 +14,13 @@ _REQUIRED_SECTIONS = [
     "Timeline",
     "Affected Hosts",
     "ATT&CK Techniques Observed",
+    # NIST SP 800-61r2 phases — all must be present
+    "Detection & Analysis",
+    "Triage",
+    "Containment",
+    "Eradication",
+    "Recovery",
+    "Lessons Learned",
 ]
 
 
