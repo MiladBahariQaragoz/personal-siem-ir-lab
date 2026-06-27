@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+build/
+dist/
+.mypy_cache/
+*.pyc
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Orchestrate / worktrees (never committed)
+.worktrees/
+.orchestrate/
+
+# Editor
+.idea/
+.vscode/
+*.swp

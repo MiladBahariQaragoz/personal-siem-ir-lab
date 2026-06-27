@@ -1,0 +1,16 @@
+# Lab instance configuration — consumed by siem_ir.safety for scope-guard enforcement.
+# lab.subnets: CIDR blocks that are AUTHORIZED targets for attack scripts.
+# Any target outside these subnets is refused by siem_ir.safety.check().
+
+[lab]
+siem_instance  = "siem"       # Oracle Cloud instance name (populated when lab is provisioned)
+victim_instance = "victim"    # Oracle Cloud instance name (populated when lab is provisioned)
+
+[lab.subnets]
+# Private VCN subnet inside Oracle Cloud — agent traffic never leaves the VCN.
+# Update with the actual CIDR after provisioning (M1).
+private = "10.0.0.0/24"
+
+[lab.attack_map]
+# Path (relative to repo root) to the ATT&CK mapping used by siem_ir.attack_map.
+path = "siem_ir/attack_map.py"
