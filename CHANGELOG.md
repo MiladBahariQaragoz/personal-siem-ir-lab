@@ -16,3 +16,5 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - `fixtures/ssh-bruteforce-chain.json`: realistic Wazuh alert fixture — brute-force → privesc → account-creation (3 alerts)
 - `siem_ir/coverage.py`: ATT&CK coverage matrix from Wazuh alert fixtures; CoverageResult dataclass; gap detection
 - `tests/test_coverage.py`: 12 tests covering hits/gaps/markdown/JSON/error cases
+- `siem_ir/report.py`: NIST SP 800-61 IR report drafter; chronological timeline; all required sections
+- `tests/test_report.py`: 11 tests covering required sections, timeline ordering, TTP presence
