@@ -107,3 +107,37 @@ def test_rule_ids_not_in_map_are_ignored():
         assert result.hits == []
     finally:
         os.unlink(path)
+
+
+# ---------------------------------------------------------------------------
+# Finding #2: non-list JSON must raise ValueError, not AttributeError
+# ---------------------------------------------------------------------------
+
+
+def test_non_list_json_raises_value_error():
+    """A JSON object at top level must raise ValueError, not AttributeError."""
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
+        json.dump({}, f)
+        path = pathlib.Path(f.name)
+    try:
+        with pytest.raises(ValueError, match="Expected a JSON list"):
+            coverage_matrix(path)
+    finally:
+        os.unlink(path)
+
+
+# ---------------------------------------------------------------------------
+# Finding #3: malformed JSON must raise ValueError, not JSONDecodeError
+# ---------------------------------------------------------------------------
+
+
+def test_malformed_json_raises_value_error():
+    """Invalid JSON content must raise ValueError with a clean message."""
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
+        f.write("NOT JSON")
+        path = pathlib.Path(f.name)
+    try:
+        with pytest.raises(ValueError, match="Invalid JSON"):
+            coverage_matrix(path)
+    finally:
+        os.unlink(path)

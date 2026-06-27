@@ -35,8 +35,16 @@ class CoverageResult:
 def _load_alerts(path: pathlib.Path) -> list[dict]:
     if not path.exists():
         raise FileNotFoundError(f"Alert fixture not found: {path}")
-    with path.open("r", encoding="utf-8") as fh:
-        return json.load(fh)
+    try:
+        with path.open("r", encoding="utf-8") as fh:
+            data = json.load(fh)
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"Invalid JSON in {path}: {exc}") from exc
+    if not isinstance(data, list):
+        raise ValueError(
+            f"Expected a JSON list of alerts in {path}, got {type(data).__name__}"
+        )
+    return data
 
 
 def _extract_detected_ttps(alerts: list[dict]) -> set[str]:
