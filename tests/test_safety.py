@@ -98,3 +98,44 @@ def test_hostname_raises():
     """Hostnames are not accepted — only dotted-decimal IPs."""
     with pytest.raises(ScopeError):
         check("victim.local")
+
+
+# ---------------------------------------------------------------------------
+# Robustness: corrupt lab.toml must not crash import; must stay fail-closed
+# ---------------------------------------------------------------------------
+
+
+def test_corrupt_lab_toml_fails_closed(tmp_path, monkeypatch):
+    """_load_subnets() must return [] on invalid TOML — not raise."""
+    corrupt = tmp_path / "lab.toml"
+    corrupt.write_text("this is not valid TOML <<<", encoding="utf-8")
+
+    import siem_ir.safety as safety_module
+
+    # Call _load_subnets with the candidate directory monkeypatched so it
+    # finds our corrupt file.  We patch __file__ on the module so the walk
+    # resolves to tmp_path.
+    original_file = safety_module.__file__
+
+    monkeypatch.setattr(safety_module, "__file__", str(tmp_path / "safety.py"))
+    import warnings
+
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        result = safety_module._load_subnets()
+
+    monkeypatch.setattr(safety_module, "__file__", original_file)
+
+    assert result == [], "Corrupt TOML must produce empty subnet list (fail-closed)"
+    assert any("corrupt" in str(w.message).lower() for w in caught), (
+        "Expected a warning about the corrupt lab.toml"
+    )
+
+
+def test_no_subnets_refuses_all(monkeypatch):
+    """check() with _ALLOWED_SUBNETS=[] must raise ScopeError for any IP."""
+    import siem_ir.safety as safety_module
+
+    monkeypatch.setattr(safety_module, "_ALLOWED_SUBNETS", [])
+    with pytest.raises(ScopeError, match="[Nn]o authorized subnets"):
+        check("10.0.0.1")

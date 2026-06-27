@@ -14,6 +14,7 @@ from __future__ import annotations
 import ipaddress
 import pathlib
 import tomllib
+import warnings
 from typing import Any
 
 
@@ -30,13 +31,26 @@ _ALLOWED_SUBNETS: list[str] = []
 
 
 def _load_subnets() -> list[str]:
-    """Walk up from this file to find lab.toml and load lab.subnets.*."""
+    """Walk up from this file to find lab.toml and load lab.subnets.*.
+
+    Returns an empty list (fail-closed) if lab.toml is missing or contains
+    invalid TOML — a warning is emitted so the broken config is visible.
+    """
     here = pathlib.Path(__file__).resolve()
     for parent in [here.parent, here.parent.parent, here.parent.parent.parent]:
         candidate = parent / "lab.toml"
         if candidate.exists():
-            with candidate.open("rb") as fh:
-                data = tomllib.load(fh)
+            try:
+                with candidate.open("rb") as fh:
+                    data = tomllib.load(fh)
+            except tomllib.TOMLDecodeError as exc:
+                warnings.warn(
+                    f"lab.toml at {candidate} is corrupt and could not be parsed "
+                    f"({exc}). Falling back to empty subnet list — all targets will "
+                    "be refused (fail-closed).",
+                    stacklevel=2,
+                )
+                return []
             subnets = data.get("lab", {}).get("subnets", {})
             return list(subnets.values())
     return []
