@@ -1,0 +1,82 @@
+[
+  {
+    "_index": "wazuh-alerts-4.x-2026.06.27",
+    "_source": {
+      "timestamp": "2026-06-27T09:01:00.000Z",
+      "rule": {
+        "id": "100001",
+        "description": "SSH brute-force attack detected",
+        "level": 10,
+        "groups": ["authentication_failures", "siem_ir"]
+      },
+      "agent": {
+        "id": "002",
+        "name": "victim",
+        "ip": "10.0.0.11"
+      },
+      "data": {
+        "srcip": "10.0.0.10",
+        "dstuser": "root",
+        "extra_data": "10 authentication failures in 60s"
+      },
+      "mitre": {
+        "id": ["T1110.001"],
+        "technique": ["Brute Force: Password Guessing"],
+        "tactic": ["Credential Access"]
+      }
+    }
+  },
+  {
+    "_index": "wazuh-alerts-4.x-2026.06.27",
+    "_source": {
+      "timestamp": "2026-06-27T09:04:37.000Z",
+      "rule": {
+        "id": "100002",
+        "description": "Privilege escalation via sudo detected",
+        "level": 12,
+        "groups": ["privilege_escalation", "siem_ir"]
+      },
+      "agent": {
+        "id": "002",
+        "name": "victim",
+        "ip": "10.0.0.11"
+      },
+      "data": {
+        "srcuser": "ubuntu",
+        "dstuser": "root",
+        "command": "sudo bash"
+      },
+      "mitre": {
+        "id": ["T1548.003"],
+        "technique": ["Abuse Elevation Control Mechanism: Sudo and Sudo Caching"],
+        "tactic": ["Privilege Escalation"]
+      }
+    }
+  },
+  {
+    "_index": "wazuh-alerts-4.x-2026.06.27",
+    "_source": {
+      "timestamp": "2026-06-27T09:06:15.000Z",
+      "rule": {
+        "id": "100003",
+        "description": "Local account creation detected",
+        "level": 12,
+        "groups": ["account_creation", "siem_ir"]
+      },
+      "agent": {
+        "id": "002",
+        "name": "victim",
+        "ip": "10.0.0.11"
+      },
+      "data": {
+        "dstuser": "attacker",
+        "command": "useradd attacker"
+      },
+      "mitre": {
+        "id": ["T1136.001"],
+        "technique": ["Create Account: Local Account"],
+        "tactic": ["Persistence"]
+      }
+    }
+  }
+]

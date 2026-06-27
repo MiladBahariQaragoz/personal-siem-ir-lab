@@ -1,0 +1,12 @@
+<!-- Valid custom Wazuh rule: id >= 100000, ATT&CK tag, group present -->
+<group name="siem_ir,authentication_failures,">
+  <rule id="100001" level="10">
+    <if_sid>5710</if_sid>
+    <match>^Failed|^error: PAM: Authentication</match>
+    <description>SSH brute-force attack detected</description>
+    <mitre>
+      <id>T1110.001</id>
+    </mitre>
+    <group>authentication_failures,siem_ir,</group>
+  </rule>
+</group>
