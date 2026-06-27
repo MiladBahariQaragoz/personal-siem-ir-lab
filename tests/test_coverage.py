@@ -141,3 +141,51 @@ def test_malformed_json_raises_value_error():
             coverage_matrix(path)
     finally:
         os.unlink(path)
+
+
+# ---------------------------------------------------------------------------
+# Security: SECURITY#4 — input size caps must be enforced
+# ---------------------------------------------------------------------------
+
+
+def test_oversized_file_rejected(tmp_path, monkeypatch):
+    """Files larger than MAX_FIXTURE_BYTES must raise ValueError (SECURITY#4)."""
+    from siem_ir.coverage import MAX_FIXTURE_BYTES
+
+    oversized = tmp_path / "big.json"
+    # Write a valid JSON list but fake a huge file size via stat mock.
+    oversized.write_text("[]", encoding="utf-8")
+
+    import pathlib as _pathlib
+
+    original_stat = _pathlib.Path.stat
+
+    def fake_stat(self, **kwargs):
+        s = original_stat(self, **kwargs)
+        # Return a stat result with inflated st_size
+        import os
+        return os.stat_result((
+            s.st_mode, s.st_ino, s.st_dev, s.st_nlink,
+            s.st_uid, s.st_gid,
+            MAX_FIXTURE_BYTES + 1,  # inflated size
+            s.st_atime, s.st_mtime, s.st_ctime,
+        ))
+
+    monkeypatch.setattr(_pathlib.Path, "stat", fake_stat)
+
+    with pytest.raises(ValueError, match=r"(?i)bytes|max|filtered"):
+        coverage_matrix(oversized)
+
+
+def test_too_many_alerts_rejected(tmp_path):
+    """Alert counts exceeding MAX_ALERTS must raise ValueError (SECURITY#4)."""
+    from siem_ir.coverage import MAX_ALERTS
+
+    # Write MAX_ALERTS + 1 minimal alert objects.
+    alert = {"rule": {"id": "999999"}, "timestamp": "2026-06-27T00:00:00.000Z"}
+    fixture = tmp_path / "overflow.json"
+    import json as _json
+    fixture.write_text(_json.dumps([alert] * (MAX_ALERTS + 1)), encoding="utf-8")
+
+    with pytest.raises(ValueError, match=r"(?i)too many|max"):
+        coverage_matrix(fixture)

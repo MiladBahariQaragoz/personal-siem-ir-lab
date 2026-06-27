@@ -17,6 +17,11 @@ from dataclasses import dataclass, field
 
 from siem_ir.attack_map import PLANNED_TTPS, RULE_MAP, TECHNIQUES
 
+# Input-size guards (SECURITY#4 — memory exhaustion protection).
+# Raise ValueError before JSON parsing / processing if limits are exceeded.
+MAX_FIXTURE_BYTES: int = 100 * 1024 * 1024  # 100 MB
+MAX_ALERTS: int = 50_000
+
 
 @dataclass
 class CoverageResult:
@@ -35,6 +40,13 @@ class CoverageResult:
 def _load_alerts(path: pathlib.Path) -> list[dict]:
     if not path.exists():
         raise FileNotFoundError(f"Alert fixture not found: {path}")
+    # Size guard — reject files that could exhaust available RAM (SECURITY#4).
+    file_size = path.stat().st_size
+    if file_size > MAX_FIXTURE_BYTES:
+        raise ValueError(
+            f"Alert fixture {path} is {file_size:,} bytes "
+            f"(max {MAX_FIXTURE_BYTES:,}). Use a filtered export."
+        )
     try:
         with path.open("r", encoding="utf-8") as fh:
             data = json.load(fh)
@@ -43,6 +55,12 @@ def _load_alerts(path: pathlib.Path) -> list[dict]:
     if not isinstance(data, list):
         raise ValueError(
             f"Expected a JSON list of alerts in {path}, got {type(data).__name__}"
+        )
+    # Count guard — reject fixtures with more alerts than we're willing to process.
+    if len(data) > MAX_ALERTS:
+        raise ValueError(
+            f"Too many alerts ({len(data):,}) in {path}; max is {MAX_ALERTS:,}. "
+            "Use a filtered export."
         )
     return data
 
