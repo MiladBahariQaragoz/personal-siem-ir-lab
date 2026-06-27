@@ -12,6 +12,7 @@ Usage:
 from __future__ import annotations
 
 import ipaddress
+import os
 import pathlib
 import tomllib
 import warnings
@@ -34,29 +35,56 @@ _ALLOWED_SUBNETS: tuple[str, ...] = ()
 
 
 def _load_subnets() -> list[str]:
-    """Walk up from this file to find lab.toml and load lab.subnets.*.
+    """Locate lab.toml and load lab.subnets.* into a list of CIDR strings.
 
-    Returns an empty list (fail-closed) if lab.toml is missing or contains
-    invalid TOML — a warning is emitted so the broken config is visible.
+    Discovery order (SECURITY#3 — config confusion fix):
+      1. Explicit ``SIEM_IR_LAB_CONFIG`` environment variable path.
+      2. Adjacent to the package root (one level above ``siem_ir/``).
+
+    The resolved path is always logged via warnings.warn so operators can
+    verify the correct file was loaded.
+
+    Returns an empty list (fail-closed) if lab.toml is missing or unreadable.
+    A warning is emitted in all cases so the broken/missing config is visible.
     """
     here = pathlib.Path(__file__).resolve()
-    for parent in [here.parent, here.parent.parent, here.parent.parent.parent]:
-        candidate = parent / "lab.toml"
-        if candidate.exists():
-            try:
-                with candidate.open("rb") as fh:
-                    data = tomllib.load(fh)
-            except tomllib.TOMLDecodeError as exc:
-                warnings.warn(
-                    f"lab.toml at {candidate} is corrupt and could not be parsed "
-                    f"({exc}). Falling back to empty subnet list — all targets will "
-                    "be refused (fail-closed).",
-                    stacklevel=2,
-                )
-                return []
-            subnets = data.get("lab", {}).get("subnets", {})
-            return list(subnets.values())
-    return []
+
+    # 1. Explicit env-var override takes highest priority (SECURITY#3).
+    env_path = os.environ.get("SIEM_IR_LAB_CONFIG")
+    if env_path:
+        candidate = pathlib.Path(env_path).resolve()
+    else:
+        # 2. Only look one level up (package root), not three (SECURITY#3).
+        candidate = here.parent.parent / "lab.toml"
+
+    if not candidate.exists():
+        return []
+
+    try:
+        with candidate.open("rb") as fh:
+            data = tomllib.load(fh)
+    except tomllib.TOMLDecodeError as exc:
+        warnings.warn(
+            f"lab.toml at {candidate} is corrupt and could not be parsed "
+            f"({exc}). Falling back to empty subnet list — all targets will "
+            "be refused (fail-closed).",
+            stacklevel=2,
+        )
+        return []
+    except OSError as exc:
+        warnings.warn(
+            f"lab.toml at {candidate} could not be read ({exc}). "
+            "Falling back to empty subnet list — all targets will be refused (fail-closed).",
+            stacklevel=2,
+        )
+        return []
+
+    warnings.warn(
+        f"siem_ir scope guard: loaded lab.toml from {candidate}",
+        stacklevel=2,
+    )
+    subnets = data.get("lab", {}).get("subnets", {})
+    return list(subnets.values())
 
 
 # Populate at import time (tests override via monkeypatch).
