@@ -26,6 +26,26 @@ _NIST_PHASES = [
 ]
 
 
+def _escape_md(value: str) -> str:
+    """Escape Markdown-special characters in an untrusted data-field value.
+
+    At minimum, backticks are neutralised to prevent code-block injection and
+    angle brackets are escaped to prevent HTML pass-through in rendered output
+    (SECURITY#7 — second-order Markdown injection from alert field values).
+
+    Args:
+        value: Raw string from an alert JSON field (e.g. rule description, host).
+
+    Returns:
+        String safe to embed verbatim in a Markdown document.
+    """
+    # Replace backticks first (code-block injection vector).
+    value = value.replace("`", "&#96;")
+    # Replace angle brackets (HTML/script injection vector).
+    value = value.replace("<", "&lt;").replace(">", "&gt;")
+    return value
+
+
 def _parse_timestamp(ts_str: str) -> datetime:
     """Parse ISO 8601 timestamp from Wazuh alert."""
     # Wazuh uses millisecond precision: 2026-06-27T09:01:00.000Z
@@ -118,9 +138,12 @@ def draft_report(alerts_path: pathlib.Path, scenario: str) -> str:
     ]
 
     for ts, host, rule_id, desc in rule_descriptions:
+        # Escape untrusted alert field values to prevent Markdown/HTML injection
+        # (SECURITY#7). host/ts are already backtick-wrapped; rule_id and desc
+        # may contain attacker-controlled content from the alert fixture.
         lines.append(
-            f"- `{ts.strftime('%Y-%m-%dT%H:%M:%SZ')}` | host: `{host}` | "
-            f"rule {rule_id} | {desc}"
+            f"- `{ts.strftime('%Y-%m-%dT%H:%M:%SZ')}` | host: `{_escape_md(host)}` | "
+            f"rule {_escape_md(str(rule_id))} | {_escape_md(desc)}"
         )
 
     lines += [
@@ -131,7 +154,7 @@ def draft_report(alerts_path: pathlib.Path, scenario: str) -> str:
         "",
     ]
     for host in sorted(hosts):
-        lines.append(f"- `{host}`")
+        lines.append(f"- `{_escape_md(host)}`")
 
     lines += [
         "",
