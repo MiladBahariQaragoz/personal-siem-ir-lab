@@ -1,6 +1,7 @@
 """Tests for siem_ir.validate_rules — Wazuh rule XML linter."""
 import pathlib
 
+import defusedxml
 import pytest
 
 from siem_ir.validate_rules import validate_rule_file, validate_rules_dir
@@ -118,3 +119,35 @@ def test_non_integer_rule_id_produces_exactly_one_error(tmp_path):
     range_errors = [e for e in errors if "built-in range" in e.lower()]
     assert len(id_errors) == 1, f"Expected 1 'not an integer' error, got: {errors}"
     assert len(range_errors) == 0, f"Expected 0 range errors, got: {errors}"
+
+
+# ---------------------------------------------------------------------------
+# Security: SECURITY#1 — XXE / entity-expansion DoS must be blocked
+# ---------------------------------------------------------------------------
+
+
+def test_billion_laughs_entity_expansion_is_blocked(tmp_path):
+    """A billion-laughs XML payload must be safely rejected by defusedxml,
+    not expanded into memory (SECURITY#1 — XXE / entity-expansion)."""
+    # Minimal three-level entity expansion; defusedxml catches it at parse time.
+    billion_laughs = tmp_path / "billion_laughs.xml"
+    billion_laughs.write_text(
+        """<?xml version="1.0"?>
+<!DOCTYPE lolz [
+  <!ENTITY lol "lol">
+  <!ENTITY lol2 "&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;">
+  <!ENTITY lol3 "&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;">
+]>
+<group name="evil,">
+  <rule id="100001" level="5">
+    <description>&lol3;</description>
+    <mitre><id>T1110.001</id></mitre>
+    <group>test,</group>
+  </rule>
+</group>""",
+        encoding="utf-8",
+    )
+    # defusedxml raises EntitiesForbidden (a ValueError subclass) — it must NOT be
+    # caught by validate_rule_file's ET.ParseError handler, so it propagates up.
+    with pytest.raises((defusedxml.EntitiesForbidden, defusedxml.DTDForbidden)):
+        validate_rule_file(billion_laughs)

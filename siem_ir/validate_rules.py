@@ -12,7 +12,9 @@ The CLI entry point is `siem-ir validate-rules <rules-dir>`.
 from __future__ import annotations
 
 import pathlib
-import xml.etree.ElementTree as ET
+
+# defusedxml replaces stdlib ET — blocks XXE and entity-expansion DoS (SECURITY#1)
+import defusedxml.ElementTree as ET
 
 
 def validate_rule_file(path: pathlib.Path) -> list[str]:

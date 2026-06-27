@@ -9,7 +9,7 @@ description = "CLI tools for ATT&CK coverage analysis and NIST 800-61 IR report 
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "MIT" }
-dependencies = []
+dependencies = ["defusedxml>=0.7"]
 
 [project.scripts]
 siem-ir = "siem_ir.cli:main"
