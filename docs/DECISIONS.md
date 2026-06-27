@@ -5,7 +5,7 @@
 **Date:** 2026-06-27
 **Status:** Accepted
 
-**Context:** Portfolio project needs a real SIEM without paid infrastructure.
+**Context:** This learning lab needs a real SIEM without paid infrastructure.
 
 **Decision:** Oracle Cloud Always-Free Ampere (4 OCPU / 24 GB, ARM64), two instances in one VCN.
 
@@ -18,7 +18,7 @@
 **Date:** 2026-06-27
 **Status:** Accepted
 
-**Context:** Terraform adds complexity for a solo portfolio project on a free tier.
+**Context:** Terraform adds complexity for a solo learning project on a free tier.
 
 **Decision:** Bootstrap scripts + documented runbook. Terraform deferred as a stretch goal.
 

@@ -66,7 +66,7 @@ python -m pytest -q
 | `docs/DECISIONS.md` | ADR stub |
 | `docs/THREAT-MODEL.md` | Threat model stub |
 | `docs/RUNBOOK.md` | Lab provisioning runbook stub |
-| `README.md` | Portfolio-grade, spec-aligned |
+| `README.md` | Overview, spec-aligned |
 | `CLAUDE.md` | Claude Code project instructions |
 | `CHANGELOG.md` | Changelog (started) |
 | `plan.md` | Project-level milestone tracker |
@@ -233,7 +233,7 @@ repository. Use responsibly and legally.
 # personal-siem-ir-lab — Claude Code project guide
 
 ## What this repo is
-A portfolio SIEM & incident-response lab: Wazuh on Oracle Cloud, custom MITRE ATT&CK-mapped
+A personal SIEM & incident-response learning lab: Wazuh on Oracle Cloud, custom MITRE ATT&CK-mapped
 detection rules, attack simulation scripts, and the `siem_ir` Python CLI that turns exported
 alert JSON into ATT&CK coverage matrices and NIST 800-61 IR report skeletons.
 
@@ -326,20 +326,20 @@ git push -u origin feat/siem-ir-scaffold-and-cli
 ```markdown
 # personal-siem-ir-lab
 
-> **Incident Response is the single most-demanded gap (39% of jobs)** and SIEM tools appear
-> constantly (Splunk, Elastic, Wazuh). This project provides verifiable, hands-on proof.
+> A personal lab I built to get hands-on with incident response and SIEM operations —
+> two areas of blue-team work I wanted to learn by actually doing them end-to-end.
 
 A working **Wazuh SIEM** on Oracle Cloud ingesting Linux telemetry, firing **custom
 MITRE ATT&CK-mapped detection rules**, and backing a full **NIST SP 800-61** incident
 response report — all demonstrated with committed alert fixtures, an ATT&CK coverage
 matrix, and a drafted IR skeleton that regenerate offline from a single CLI command.
 
-## CV bullet (target)
-> Stood up a Wazuh SIEM ingesting Linux telemetry, authored MITRE ATT&CK-mapped
-> detections, and documented a full NIST 800-61 incident-response cycle for a simulated
+## In short
+> Built a Wazuh SIEM ingesting Linux telemetry, authored MITRE ATT&CK-mapped
+> detections, and worked through a full NIST 800-61 incident-response cycle for a simulated
 > brute-force→privilege-escalation intrusion.
 
-## Skills this proves
+## What this lab covers
 - **SIEM operations** — Wazuh all-in-one on ARM64, agent enrollment, indexer tuning
 - **Incident response & triage** — full NIST 800-61 lifecycle with ATT&CK mapping
 - **Threat detection** — custom Wazuh rules, FP tuning, detection gap analysis
@@ -434,7 +434,7 @@ Expected: `All checks passed!` or no output (no .py files yet).
 
 ```bash
 git add README.md CHANGELOG.md
-git commit -m "docs: add portfolio-grade README (refs #1)"
+git commit -m "docs: add overview README (refs #1)"
 git push
 ```
 
@@ -473,7 +473,7 @@ __version__ = "0.1.0"
 
 > **Status:** Stub — populated in M2 (live lab required).
 
-Each row carries the traceability chain: CV claim → ATT&CK ID → rule → rationale → validation evidence.
+Each row carries the traceability chain: detection claim → ATT&CK ID → rule → rationale → validation evidence.
 
 | # | Detection | ATT&CK ID | Rule file | Rationale | Validation trigger | Evidence |
 |---|-----------|-----------|-----------|-----------|-------------------|---------|
@@ -563,7 +563,7 @@ bash attack/ssh-bruteforce.sh <victim-ip>
 **Date:** 2026-06-27
 **Status:** Accepted
 
-**Context:** Portfolio project needs a real SIEM without paid infrastructure.
+**Context:** This learning lab needs a real SIEM without paid infrastructure.
 
 **Decision:** Oracle Cloud Always-Free Ampere (4 OCPU / 24 GB, ARM64), two instances in one VCN.
 
@@ -576,7 +576,7 @@ bash attack/ssh-bruteforce.sh <victim-ip>
 **Date:** 2026-06-27
 **Status:** Accepted
 
-**Context:** Terraform adds complexity for a solo portfolio project on a free tier.
+**Context:** Terraform adds complexity for a solo learning project on a free tier.
 
 **Decision:** Bootstrap scripts + documented runbook. Terraform deferred as a stretch goal.
 
@@ -2413,7 +2413,7 @@ git push
 | pyproject.toml, PEP 621, entry point `siem-ir`, dev deps pytest+ruff | Task 1 |
 | Python package skeleton `siem_ir/` | Task 3 |
 | `lab.toml` with subnets + ATT&CK map path | Task 1 |
-| `README.md` spec-aligned, portfolio-grade | Task 2 |
+| `README.md` spec-aligned, overview | Task 2 |
 | `CLAUDE.md`, `CHANGELOG.md`, `plan.md` | Task 1 |
 | `DISCLAIMER.md`, `LICENSE` | Task 1 |
 | `.gitignore` Python baseline + `.worktrees/` + `.orchestrate/` | Task 1 |

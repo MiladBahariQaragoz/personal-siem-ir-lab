@@ -2,9 +2,8 @@
 
 - **Date:** 2026-06-27
 - **Status:** Approved (brainstorming)
-- **Project:** 03 of the Sec-CV portfolio (own git repo → GitHub `personal-siem-ir-lab`)
-- **Sibling projects:** 01 `linux-hardening-auditor`, 02 `netrecon` (network recon/vuln scanner)
-- **Estimated effort:** 3–4 weeks (per portfolio README)
+- **Project:** personal learning lab (own git repo → GitHub `personal-siem-ir-lab`)
+- **Estimated effort:** 3–4 weeks
 
 ## 1. Summary
 
@@ -15,21 +14,21 @@ response report following **NIST SP 800-61**. The committed repository centres o
 small, testable Python CLI (`siem_ir`) that turns exported alerts into an ATT&CK coverage
 matrix and a drafted IR report skeleton.
 
-The CV signal this fills (from the portfolio analysis): **Incident Response (39% of jobs)**
-and **SIEM tooling (16%)** — i.e. "I stood up a SIEM, tuned detections, and handled an
-incident," demonstrated with verifiable artifacts.
+Why these topics: incident response and SIEM operations are core blue-team skills I wanted
+hands-on experience with — i.e. "stand up a SIEM, tune detections, and work through an
+incident," learned by building verifiable artifacts end-to-end.
 
 ## 2. Goal & non-goals
 
-**Goal.** Produce a public, reproducible repository proving hands-on SIEM operations and the
+**Goal.** Produce a public, reproducible repository exercising hands-on SIEM operations and the
 full IR lifecycle, backed by real evidence (firing alerts + screenshots + timeline) and
 replayable offline artifacts (committed alert fixtures → coverage matrix → IR draft).
 
 **Non-goals (YAGNI / scope guards).**
 - Not a heavy automation orchestrator that scripts around the hands-on SOC work — the
   hands-on operation *is* the deliverable.
-- Not a Sigma rule-engineering platform — that is a separate later project (08
-  `detection-engineering-sigma`). This project authors **native Wazuh rules** only.
+- Not a Sigma rule-engineering platform — that is a separate topic I may explore later.
+  This project authors **native Wazuh rules** only.
 - Not multi-cloud / production-grade IaC in v1 — provisioning is a documented, scripted
   runbook (Approach B), with Terraform deferred to a stretch goal.
 - No Windows host in v1 (Oracle free tier is Linux/ARM only) — Windows/Sysmon onboarding is
@@ -91,9 +90,9 @@ attack (Atomic Red Team on victim; hydra SSH brute-force, all in-VCN)
 ```
 
 The live lab produces proof **once**; everything downstream replays in CI from committed
-fixtures with no SIEM running (mirrors project 02's offline, fixture-driven philosophy).
+fixtures with no SIEM running (an offline, fixture-driven approach).
 
-### 4.3 Safety invariants (carried from netrecon)
+### 4.3 Safety invariants
 
 - **Scope guard, fail-closed:** attacks only ever target the owner's own lab instances. The
   guard lives in Python (`siem_ir.safety`) and the bash attack scripts shell out to it; any
@@ -102,7 +101,7 @@ fixtures with no SIEM running (mirrors project 02's offline, fixture-driven phil
 
 ## 5. Repository structure
 
-Own git repo (like 01/02), GitHub `personal-siem-ir-lab`. Layout follows established conventions
+Own git repo, GitHub `personal-siem-ir-lab`. Layout follows established conventions
 (Python package + `pyproject.toml` + `tests/` + `docs/` + maintained markdown).
 
 ```
@@ -146,8 +145,8 @@ Custom rule IDs use the user range (≥100000).
 | 5 | File-integrity change on /etc, /usr/bin (FIM) | T1565.001 / T1070 | modify a monitored file |
 | 6 *(stretch)* | Cron / authorized_keys persistence | T1053.003 / T1098.004 | Atomic persistence test |
 
-Every `DETECTIONS.md` row carries the hardening-auditor traceability chain:
-**CV claim → ATT&CK ID → rule → rationale → validation evidence.**
+Every `DETECTIONS.md` row carries a traceability chain:
+**detection claim → ATT&CK ID → rule → rationale → validation evidence.**
 
 Tuning: generate benign noise first, then tune out false positives before declaring a
 detection done.
@@ -190,7 +189,7 @@ with ATT&CK IDs and linked to the firing alert + screenshot:
 
 ## 10. Testing
 
-Offline pytest suite (parity with 01/02), all driven by committed fixtures:
+Offline pytest suite, all driven by committed fixtures:
 
 - `coverage.py`: rule→ATT&CK mapping + gap detection against a known fixture.
 - `report.py`: timeline ordering; all required NIST sections present.
@@ -214,17 +213,16 @@ is down.
 
 ## 12. Conventions, docs discipline & git workflow
 
-- **Own repo, own GitHub remote**, default branch `main` (like 01/02).
+- **Own repo, own GitHub remote**, default branch `main`.
 - **Commit + push every task** — small, single-purpose, conventional messages.
-- **Maintained-docs discipline** (carried from the hardening-auditor): the following are
+- **Maintained-docs discipline:** the following are
   updated **in the same commit** as the code/content they describe — a task is not done
   until its doc is current: `README.md`, `CHANGELOG.md`, `plan.md`, `detections/DETECTIONS.md`,
   `docs/DECISIONS.md` (ADRs), `docs/THREAT-MODEL.md`, `docs/RUNBOOK.md`.
-- `.gitignore` includes the global baseline; `CLAUDE.md` and `docs/` **are committed**
-  (consistent with 01/02).
+- `.gitignore` includes the global baseline; `CLAUDE.md` and `docs/` **are committed**.
 - `DISCLAIMER.md` states authorized-lab-only use; attack content is scope-guarded.
 
-## 13. Definition of done (from portfolio README)
+## 13. Definition of done
 
 - [ ] Public repo: deployment notes, custom detection rules, dashboards (screenshots).
 - [ ] ≥5 working detections, each mapped to a MITRE ATT&CK ID.
@@ -232,9 +230,9 @@ is down.
 - [ ] Evidence the alert fired (SIEM screenshot + timeline).
 - [ ] `siem_ir` CLI with green offline test suite; `examples/` regenerated from fixtures.
 
-**Target CV bullet:** "Stood up a Wazuh SIEM ingesting Linux telemetry, authored MITRE
-ATT&CK-mapped detections, and documented a full NIST 800-61 incident-response cycle for a
-simulated brute-force→privilege-escalation intrusion."
+**In one line:** built a Wazuh SIEM ingesting Linux telemetry, authored MITRE
+ATT&CK-mapped detections, and worked through a full NIST 800-61 incident-response cycle for a
+simulated brute-force→privilege-escalation intrusion.
 
 ## 14. Risks & mitigations
 

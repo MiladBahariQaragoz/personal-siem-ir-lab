@@ -1,19 +1,19 @@
 # personal-siem-ir-lab
 
-> **Incident Response is the single most-demanded gap (39% of jobs)** and SIEM tools appear
-> constantly (Splunk, Elastic, Wazuh). This project provides verifiable, hands-on proof.
+> A personal lab I built to get hands-on with incident response and SIEM operations —
+> two areas of blue-team work I wanted to learn by actually doing them end-to-end.
 
 A working **Wazuh SIEM** on Oracle Cloud ingesting Linux telemetry, firing **custom
 MITRE ATT&CK-mapped detection rules**, and backing a full **NIST SP 800-61** incident
 response report — all demonstrated with committed alert fixtures, an ATT&CK coverage
 matrix, and a drafted IR skeleton that regenerate offline from a single CLI command.
 
-## CV bullet (target)
-> Stood up a Wazuh SIEM ingesting Linux telemetry, authored MITRE ATT&CK-mapped
-> detections, and documented a full NIST 800-61 incident-response cycle for a simulated
+## In short
+> Built a Wazuh SIEM ingesting Linux telemetry, authored MITRE ATT&CK-mapped
+> detections, and worked through a full NIST 800-61 incident-response cycle for a simulated
 > brute-force→privilege-escalation intrusion.
 
-## Skills this proves
+## What this lab covers
 - **SIEM operations** — Wazuh all-in-one on ARM64, agent enrollment, indexer tuning
 - **Incident response & triage** — full NIST 800-61 lifecycle with ATT&CK mapping
 - **Threat detection** — custom Wazuh rules, FP tuning, detection gap analysis

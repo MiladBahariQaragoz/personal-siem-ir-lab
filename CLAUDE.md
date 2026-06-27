@@ -1,7 +1,7 @@
 # personal-siem-ir-lab — Claude Code project guide
 
 ## What this repo is
-A portfolio SIEM & incident-response lab: Wazuh on Oracle Cloud, custom MITRE ATT&CK-mapped
+A personal SIEM & incident-response learning lab: Wazuh on Oracle Cloud, custom MITRE ATT&CK-mapped
 detection rules, attack simulation scripts, and the `siem_ir` Python CLI that turns exported
 alert JSON into ATT&CK coverage matrices and NIST 800-61 IR report skeletons.
 

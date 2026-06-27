@@ -2,7 +2,7 @@
 
 > **Status:** Stub — populated in M2 (live lab required).
 
-Each row carries the traceability chain: CV claim → ATT&CK ID → rule → rationale → validation evidence.
+Each row carries the traceability chain: detection claim → ATT&CK ID → rule → rationale → validation evidence.
 
 | # | Detection | ATT&CK ID | Rule file | Rationale | Validation trigger | Evidence |
 |---|-----------|-----------|-----------|-----------|-------------------|---------|
