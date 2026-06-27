@@ -31,9 +31,6 @@ class ScopeError(Exception):
 # Tests should use reload() or monkeypatch the tuple; see reload() below.
 # ---------------------------------------------------------------------------
 
-_ALLOWED_SUBNETS: tuple[str, ...] = ()
-
-
 def _load_subnets() -> list[str]:
     """Locate lab.toml and load lab.subnets.* into a list of CIDR strings.
 
