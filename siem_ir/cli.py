@@ -25,7 +25,7 @@ def _cmd_coverage(args: argparse.Namespace) -> int:
 
     try:
         result = coverage_matrix(pathlib.Path(args.alerts))
-    except FileNotFoundError as exc:
+    except (FileNotFoundError, ValueError) as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         return 1
 
@@ -45,7 +45,7 @@ def _cmd_report(args: argparse.Namespace) -> int:
 
     try:
         md = draft_report(pathlib.Path(args.alerts), args.scenario)
-    except FileNotFoundError as exc:
+    except (FileNotFoundError, ValueError) as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         return 1
 
