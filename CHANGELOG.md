@@ -31,21 +31,31 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   `TOMLDecodeError`), emits a warning, and returns `[]` (fail-closed) on I/O failures.
 - Added 17 regression tests covering all 8 findings.
 
+### Fixed (self-review — 2026-06-27)
+- **Dead code:** removed redundant `_ALLOWED_SUBNETS: tuple[str, ...] = ()` placeholder
+  in `siem_ir/safety.py` (it was immediately overwritten by the real initialisation on the
+  next statement and served no purpose).
+- **Unicode stdout:** `siem_ir/cli.py:main()` now calls `sys.stdout.reconfigure(encoding="utf-8")`
+  on entry so the coverage matrix Unicode symbols (✓ ✗) do not crash on Windows terminals
+  that default to a narrow code page (e.g. cp1252).
+
 ### Added
 - Repo scaffold: pyproject.toml, lab.toml, .gitignore, LICENSE, DISCLAIMER.md, CLAUDE.md, plan.md (M0)
 - `README.md`: portfolio-grade README with CV bullet, skills, layout, CLI usage, milestones
 - Python package skeleton: `siem_ir/__init__.py`, `tests/__init__.py`, dir stubs with .gitkeep
 - Doc stubs: `detections/DETECTIONS.md`, `infra/NETWORK.md`, `attack/ATTACK-PLAN.md`, `docs/DECISIONS.md`, `docs/THREAT-MODEL.md`, `docs/RUNBOOK.md`
 - `siem_ir/safety.py`: fail-closed scope guard; ScopeError for out-of-subnet + malformed input (M0)
-- `tests/test_safety.py`: 12 tests covering in-subnet pass, out-of-subnet fail, malformed fail
+- `tests/test_safety.py`: 19 tests covering in-subnet pass, out-of-subnet fail, malformed fail, security regressions
 - `siem_ir/attack_map.py`: ATT&CK technique catalogue (8 techniques) and rule→technique mapping for lab detections
 - `fixtures/ssh-bruteforce-chain.json`: realistic Wazuh alert fixture — brute-force → privesc → account-creation (3 alerts)
 - `siem_ir/coverage.py`: ATT&CK coverage matrix from Wazuh alert fixtures; CoverageResult dataclass; gap detection
-- `tests/test_coverage.py`: 12 tests covering hits/gaps/markdown/JSON/error cases
+- `tests/test_coverage.py`: 16 tests covering hits/gaps/markdown/JSON/error cases and security regressions
 - `siem_ir/report.py`: NIST SP 800-61 IR report drafter; chronological timeline; all required sections
-- `tests/test_report.py`: 11 tests covering required sections, timeline ordering, TTP presence
+- `tests/test_report.py`: 20 tests covering required sections, timeline ordering, TTP presence, security regressions
 - `siem_ir/validate_rules.py`: Wazuh rule XML linter (well-formed, id >= 100000, mitre tag, group present)
 - `fixtures/rules/`: sample pass/fail rule XML files for linter tests (rule_valid, rule_bad_id, rule_no_mitre, rule_no_group, rule_malformed)
-- `tests/test_validate_rules.py`: 9 tests covering each failure mode + directory lint
+- `tests/test_validate_rules.py`: 11 tests covering each failure mode + directory lint + security regressions
 - `siem_ir/cli.py`: argparse dispatch for `coverage`, `report`, `validate-rules` commands; `siem-ir` entry point
+- `tests/test_cli_security.py`: 5 tests covering output path-traversal guard (SECURITY#5)
 - `examples/`: pre-generated coverage matrix (MD + JSON) and IR report skeleton from ssh-bruteforce-chain fixture
+- Total: 71 tests, all passing.

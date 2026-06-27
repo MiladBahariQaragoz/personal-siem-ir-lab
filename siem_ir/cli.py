@@ -164,6 +164,15 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main() -> None:
+    # Reconfigure stdout/stderr to UTF-8 so Unicode symbols (✓ ✗) in the
+    # coverage matrix render correctly on Windows terminals that default to
+    # a narrow code page (e.g. cp1252).  errors="replace" means no crash
+    # even on exotic terminal configurations.
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    if hasattr(sys.stderr, "reconfigure"):
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
     parser = build_parser()
     args = parser.parse_args()
 
