@@ -1,8 +1,8 @@
-# Design — Personal SIEM & Incident Response Lab (`home-siem-ir`)
+# Design — Personal SIEM & Incident Response Lab (`personal-siem-ir-lab`)
 
 - **Date:** 2026-06-27
 - **Status:** Approved (brainstorming)
-- **Project:** 03 of the Sec-CV portfolio (own git repo → GitHub `home-siem-ir`)
+- **Project:** 03 of the Sec-CV portfolio (own git repo → GitHub `personal-siem-ir-lab`)
 - **Sibling projects:** 01 `linux-hardening-auditor`, 02 `netrecon` (network recon/vuln scanner)
 - **Estimated effort:** 3–4 weeks (per portfolio README)
 
@@ -102,11 +102,11 @@ fixtures with no SIEM running (mirrors project 02's offline, fixture-driven phil
 
 ## 5. Repository structure
 
-Own git repo (like 01/02), GitHub `home-siem-ir`. Layout follows established conventions
+Own git repo (like 01/02), GitHub `personal-siem-ir-lab`. Layout follows established conventions
 (Python package + `pyproject.toml` + `tests/` + `docs/` + maintained markdown).
 
 ```
-home-siem-ir/
+personal-siem-ir-lab/
 ├── README.md  CLAUDE.md  CHANGELOG.md  plan.md  DISCLAIMER.md  LICENSE
 ├── pyproject.toml
 ├── lab.toml                  # instance names + lab subnet (scope guard) + ATT&CK map path
